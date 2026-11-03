@@ -1,17 +1,17 @@
+import { IMAGE_MODEL } from '@/lib/model'
 import { MAX_UPLOAD_BYTES } from '@/lib/photos'
 import {
   MAX_CUSTOM_STYLE_LENGTH,
+  MAX_DETAILS_LENGTH,
   QUALITIES,
   STYLES,
   buildPrompt,
 } from '@/lib/styles'
 import { createClient } from '@/lib/supabase/server'
 
-const MODEL = process.env.IMAGE_MODEL ?? 'gpt-image-1.5'
 const SIZE = '1024x1024'
 // Always return a solid background rather than letting the model choose transparency.
 const BACKGROUND = 'opaque'
-const MAX_DETAILS_LENGTH = 300
 // At High quality this caps spending at about $3.25 per user per day.
 const DAILY_IMAGE_LIMIT = 25
 
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
 
   if (photo) {
     const body = new FormData()
-    body.append('model', MODEL)
+    body.append('model', IMAGE_MODEL)
     body.append('prompt', prompt)
     body.append('size', SIZE)
     body.append('quality', quality.id)
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: IMAGE_MODEL,
         prompt,
         size: SIZE,
         quality: quality.id,

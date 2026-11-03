@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       type: 'email',
     })
     if (!error) {
-      return NextResponse.redirect(new URL('/', request.url))
+      return NextResponse.redirect(new URL('/studio', request.url))
     }
     console.error('Login link rejected', error.status, error.code ?? error.message)
   }

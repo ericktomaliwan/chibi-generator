@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import clsx from 'clsx'
 
+import { LINK_CLASSES } from '@/components/classNames'
 import { TinyPetalIcon } from '@/components/TinyPetalIcon'
 
 export function AboutSection(props: React.ComponentPropsWithoutRef<'section'>) {
@@ -33,7 +34,7 @@ export function AboutSection(props: React.ComponentPropsWithoutRef<'section'>) {
       {!isExpanded && (
         <button
           type="button"
-          className="mt-2 hidden text-sm/6 font-bold text-pink-500 hover:text-pink-700 active:text-pink-900 lg:inline-block"
+          className={clsx('mt-2 hidden', LINK_CLASSES, 'lg:inline-block')}
           onClick={() => setIsExpanded(true)}
         >
           Show more

@@ -1,45 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import clsx from 'clsx'
 
 import { signOut } from '@/app/actions/auth'
+import { ChibiEntry, type Chibi } from '@/components/ChibiEntry'
+import { FIELD_CLASSES, LINK_CLASSES } from '@/components/classNames'
 import { Container } from '@/components/Container'
+import { PendingEntry } from '@/components/PendingEntry'
+import { PhotoPicker, type Photo } from '@/components/PhotoPicker'
 import { TinyPetalIcon } from '@/components/TinyPetalIcon'
 import { MAX_PHOTO_BYTES, shrinkPhoto } from '@/lib/photos'
 import {
   MAX_CUSTOM_STYLE_LENGTH,
+  MAX_DETAILS_LENGTH,
   QUALITIES,
   STYLES,
   type QualityId,
   type StyleId,
 } from '@/lib/styles'
-
-type Chibi = {
-  id: string
-  createdAt: Date
-  styleId: StyleId
-  customStyle: string
-  details: string
-  photoName: string | null
-  image: string
-}
-
-type Photo = { file: File; url: string }
-
-function UploadIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" {...props}>
-      <path
-        d="M12 16V4m0 0-4 4m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
 
 function SectionHeading({
   colors,
@@ -53,174 +32,6 @@ function SectionHeading({
       <TinyPetalIcon colors={colors} className="h-3 w-3" />
       <span className="ml-2.5">{children}</span>
     </h2>
-  )
-}
-
-function formatTime(date: Date) {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(date)
-}
-
-function PhotoPicker({
-  photo,
-  onChange,
-}: {
-  photo: Photo | null
-  onChange: (file: File | null) => void
-}) {
-  const [isDragging, setIsDragging] = useState(false)
-
-  if (photo) {
-    return (
-      <div className="mt-3 flex items-center gap-4 rounded-2xl border border-slate-200 p-3">
-        {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview */}
-        <img
-          src={photo.url}
-          alt="Your uploaded photo"
-          className="h-20 w-20 flex-none rounded-xl object-cover ring-1 ring-black/10"
-        />
-        <div className="min-w-0 flex-auto">
-          <p className="truncate text-sm/6 font-bold text-slate-900">
-            {photo.file.name}
-          </p>
-          <p className="font-mono text-sm/6 text-slate-500">
-            {(photo.file.size / 1024 / 1024).toFixed(1)} MB
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => onChange(null)}
-          className="flex-none text-sm/6 font-bold text-pink-500 hover:text-pink-700 active:text-pink-900"
-        >
-          Remove
-        </button>
-      </div>
-    )
-  }
-
-  return (
-    <label
-      onDragOver={(event) => {
-        event.preventDefault()
-        setIsDragging(true)
-      }}
-      onDragLeave={() => setIsDragging(false)}
-      onDrop={(event) => {
-        event.preventDefault()
-        setIsDragging(false)
-        onChange(event.dataTransfer.files[0] ?? null)
-      }}
-      className={clsx(
-        'mt-3 flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed px-6 py-10 text-center transition',
-        isDragging
-          ? 'border-pink-400 bg-pink-50'
-          : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50',
-      )}
-    >
-      <UploadIcon className="h-8 w-8 stroke-slate-400" />
-      <span className="mt-3 text-base/7 font-bold text-slate-900">
-        Drop a photo here, or click to choose one
-      </span>
-      <span className="mt-1 text-sm/6 text-slate-500">
-        PNG, JPEG, or WebP up to 10 MB. A clear, full-body shot works best.
-      </span>
-      <input
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-        className="sr-only"
-        onChange={(event) => onChange(event.target.files?.[0] ?? null)}
-      />
-    </label>
-  )
-}
-
-function ChibiEntry({
-  chibi,
-  onRemove,
-}: {
-  chibi: Chibi
-  onRemove: () => void
-}) {
-  const style = STYLES.find((s) => s.id === chibi.styleId)!
-  const title = chibi.customStyle ? 'Custom style' : style.name
-  const summary = [
-    chibi.photoName ? `From ${chibi.photoName}` : 'From a text description',
-    chibi.customStyle && `Style: ${chibi.customStyle}`,
-    chibi.details,
-  ]
-    .filter(Boolean)
-    .join(' · ')
-
-  return (
-    <article className="py-10 sm:py-12">
-      <Container>
-        <div className="flex flex-col items-start">
-          <h3 className="mt-2 text-lg font-bold text-slate-900">{title}</h3>
-          <time
-            dateTime={chibi.createdAt.toISOString()}
-            className="order-first font-mono text-sm/7 text-slate-500"
-          >
-            {formatTime(chibi.createdAt)}
-          </time>
-          <p className="mt-1 text-base/7 text-slate-700">{summary}</p>
-          <div className="relative mt-6 w-full max-w-md overflow-hidden rounded-2xl bg-slate-100 shadow-xl shadow-slate-200">
-            <Image
-              src={chibi.image}
-              alt={`Chibi ${title.toLowerCase()}`}
-              width={1024}
-              height={1024}
-              unoptimized
-              className="w-full"
-            />
-            <div className="absolute inset-0 rounded-2xl ring-1 ring-black/10 ring-inset" />
-          </div>
-          <div className="mt-4 flex items-center gap-4">
-            <a
-              href={chibi.image}
-              download={`chibi-${style.id}-${chibi.createdAt.getTime()}.png`}
-              className="text-sm/6 font-bold text-pink-500 hover:text-pink-700 active:text-pink-900"
-            >
-              Download
-            </a>
-            <span aria-hidden="true" className="text-sm font-bold text-slate-400">
-              /
-            </span>
-            <button
-              type="button"
-              onClick={onRemove}
-              className="text-sm/6 font-bold text-pink-500 hover:text-pink-700 active:text-pink-900"
-            >
-              Remove
-            </button>
-          </div>
-        </div>
-      </Container>
-    </article>
-  )
-}
-
-function PendingEntry({ styleId }: { styleId: StyleId }) {
-  const style = STYLES.find((s) => s.id === styleId)!
-
-  return (
-    <article className="py-10 sm:py-12" aria-live="polite">
-      <Container>
-        <div className="flex flex-col items-start">
-          <p className="font-mono text-sm/7 text-slate-500">Generating…</p>
-          <h3 className="mt-2 text-lg font-bold text-slate-900">
-            {style.id === 'custom' ? 'Custom style' : style.name}
-          </h3>
-          <p className="mt-1 text-base/7 text-slate-700">
-            This usually takes 30 to 60 seconds.
-          </p>
-          <div className="mt-6 aspect-square w-full max-w-md animate-pulse rounded-2xl bg-linear-to-br from-indigo-100 via-violet-100 to-pink-100" />
-        </div>
-      </Container>
-    </article>
   )
 }
 
@@ -288,10 +99,7 @@ export function ChibiStudio() {
         <div className="flex items-baseline justify-between gap-4">
           <h1 className="text-2xl/7 font-bold text-slate-900">Create your chibi</h1>
           <form action={signOut}>
-            <button
-              type="submit"
-              className="text-sm/6 font-bold text-pink-500 hover:text-pink-700 active:text-pink-900"
-            >
+            <button type="submit" className={LINK_CLASSES}>
               Sign out
             </button>
           </form>
@@ -362,7 +170,7 @@ export function ChibiStudio() {
                   value={customStyle}
                   onChange={(event) => setCustomStyle(event.target.value)}
                   placeholder="Knitted plush doll sitting on a wooden shelf, warm cozy lighting"
-                  className="mt-3 block w-full rounded-2xl border border-slate-200 px-4 py-3 text-base/7 text-slate-900 placeholder:text-slate-400 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 focus:outline-none"
+                  className={clsx('mt-3', FIELD_CLASSES)}
                 />
                 <p className="mt-2 text-right font-mono text-xs text-slate-500">
                   {customStyle.length} / {MAX_CUSTOM_STYLE_LENGTH}
@@ -385,7 +193,7 @@ export function ChibiStudio() {
             <textarea
               id="details"
               rows={3}
-              maxLength={300}
+              maxLength={MAX_DETAILS_LENGTH}
               value={details}
               onChange={(event) => setDetails(event.target.value)}
               placeholder={
@@ -393,7 +201,7 @@ export function ChibiStudio() {
                   ? 'Holding an iced coffee, wearing a yellow raincoat'
                   : 'A sleepy wizard in purple robes holding a tiny lantern'
               }
-              className="mt-3 block w-full rounded-2xl border border-slate-200 px-4 py-3 text-base/7 text-slate-900 placeholder:text-slate-400 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 focus:outline-none"
+              className={clsx('mt-3', FIELD_CLASSES)}
             />
           </section>
 
