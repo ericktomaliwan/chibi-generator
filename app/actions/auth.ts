@@ -50,7 +50,7 @@ async function signIn(email: string, password: string): Promise<LoginState> {
     return { status: isOutage ? 'unavailable' : 'wrong-credentials', email }
   }
 
-  redirect('/')
+  redirect('/studio')
 }
 
 async function sendLoginLink(email: string): Promise<LoginState> {

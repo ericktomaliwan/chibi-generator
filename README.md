@@ -43,7 +43,7 @@ You need Node.js 24, [pnpm](https://pnpm.io), an [OpenAI API key](https://platfo
    pnpm dev
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) and sign in.
+4. Open [http://localhost:3000](http://localhost:3000) to see the home page, or sign in to use the studio at `/studio`.
 
 ## Setting up Supabase
 
@@ -107,7 +107,8 @@ IMAGE_QUALITY=low IMAGE_MODEL=gpt-image-2 node --env-file=.env.local scripts/try
 
 ```
 app/
-  page.tsx               Page layout: sidebar and main column
+  page.tsx               Public home page
+  studio/page.tsx        Studio layout: sidebar and main column (requires login)
   layout.tsx             Root layout, fonts, and metadata
   login/page.tsx         Login page
   auth/confirm/route.ts  Where the emailed sign-in link lands
@@ -115,16 +116,23 @@ app/
   api/generate/route.ts  Server route that checks the session and calls OpenAI
 components/
   ChibiStudio.tsx        The create form and results list
+  PhotoPicker.tsx        Photo upload and drag and drop
+  ChibiEntry.tsx         One finished result
+  PendingEntry.tsx       The placeholder while an image generates
+  classNames.ts          Field and link styling shared between forms
   LoginForm.tsx          The login form
   PetalBanner.tsx        Petal and sparkle header decoration
   TinyPetalIcon.tsx      Section heading icon
   AboutSection.tsx       Collapsible About text
+  home/                  Home page components
 lib/
   styles.ts              Styles, quality options, and prompt builder
+  model.ts               The image model, from IMAGE_MODEL or the default
   photos.ts              Upload limits and browser-side photo shrinking
   supabase/              Supabase clients and session handling
 supabase/migrations/     Database setup, including the daily limit
-proxy.ts                 Sends signed-out visitors to the login page
+images/                  Example chibis and the studio screenshot used on the home page
+proxy.ts                 Sends signed-out visitors from the studio to the login page
 scripts/
   try-chibi.mjs          Command-line test script
 ```

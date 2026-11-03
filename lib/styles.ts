@@ -38,7 +38,14 @@ export const STYLES = [
 export type Style = (typeof STYLES)[number]
 export type StyleId = Style['id']
 
+export function styleTitle(id: StyleId) {
+  return id === 'custom'
+    ? 'Custom style'
+    : STYLES.find((style) => style.id === id)!.name
+}
+
 export const MAX_CUSTOM_STYLE_LENGTH = 1000
+export const MAX_DETAILS_LENGTH = 300
 
 // Approximate per-image prices for 1024x1024 output. Photo uploads add a
 // small charge for the input image.

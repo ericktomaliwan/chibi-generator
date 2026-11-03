@@ -2,11 +2,12 @@
 
 import { useActionState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import clsx from 'clsx'
 
 import { logIn } from '@/app/actions/auth'
+import { FIELD_CLASSES, LINK_CLASSES } from '@/components/classNames'
 
-const INPUT_CLASSES =
-  'mt-2 block w-full rounded-2xl border border-slate-200 px-4 py-3 text-base/7 text-slate-900 placeholder:text-slate-400 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 focus:outline-none'
+const INPUT_CLASSES = clsx('mt-2', FIELD_CLASSES)
 
 const ERROR_MESSAGES = {
   'invalid-email': 'Enter a valid email address.',
@@ -82,7 +83,7 @@ export function LoginForm() {
           value="link"
           formNoValidate
           disabled={isPending}
-          className="font-bold text-pink-500 hover:text-pink-700 active:text-pink-900 disabled:cursor-not-allowed disabled:opacity-60"
+          className={clsx(LINK_CLASSES, 'disabled:cursor-not-allowed disabled:opacity-60')}
         >
           Email me a sign-in link
         </button>

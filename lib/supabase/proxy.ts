@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 
 import { cookieOptions, supabaseEnv } from '@/lib/supabase/config'
 
-const PUBLIC_PATHS = ['/login', '/auth/confirm']
+const PUBLIC_PATHS = ['/', '/login', '/auth/confirm']
 const CACHE_HEADERS = ['cache-control', 'expires', 'pragma']
 
 // Refreshes the session and sends signed-out visitors to the login page. This
@@ -37,7 +37,7 @@ export async function updateSession(request: NextRequest) {
     return redirectWithSession(request, response, '/login')
   }
   if (isSignedIn && pathname === '/login') {
-    return redirectWithSession(request, response, '/')
+    return redirectWithSession(request, response, '/studio')
   }
   return response
 }
