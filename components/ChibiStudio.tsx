@@ -4,8 +4,10 @@ import { useState } from 'react'
 import Image from 'next/image'
 import clsx from 'clsx'
 
+import { signOut } from '@/app/actions/auth'
 import { Container } from '@/components/Container'
 import { TinyPetalIcon } from '@/components/TinyPetalIcon'
+import { MAX_PHOTO_BYTES, shrinkPhoto } from '@/lib/photos'
 import {
   MAX_CUSTOM_STYLE_LENGTH,
   QUALITIES,
@@ -242,14 +244,18 @@ export function ChibiStudio() {
     setError(null)
     setPendingStyleId(styleId)
 
-    const body = new FormData()
-    if (photo) body.append('photo', photo.file)
-    body.append('style', styleId)
-    if (styleId === 'custom') body.append('customStyle', customStyle)
-    body.append('quality', qualityId)
-    body.append('details', details)
-
     try {
+      if (photo && photo.file.size > MAX_PHOTO_BYTES) {
+        throw new Error('Photos must be 10 MB or smaller.')
+      }
+
+      const body = new FormData()
+      if (photo) body.append('photo', await shrinkPhoto(photo.file))
+      body.append('style', styleId)
+      if (styleId === 'custom') body.append('customStyle', customStyle)
+      body.append('quality', qualityId)
+      body.append('details', details)
+
       const response = await fetch('/api/generate', { method: 'POST', body })
       const result = await response.json().catch(() => null)
       if (!response.ok || !result?.image) {
@@ -279,7 +285,17 @@ export function ChibiStudio() {
   return (
     <div className="pt-16 pb-12 sm:pb-4 lg:pt-12">
       <Container>
-        <h1 className="text-2xl/7 font-bold text-slate-900">Create your chibi</h1>
+        <div className="flex items-baseline justify-between gap-4">
+          <h1 className="text-2xl/7 font-bold text-slate-900">Create your chibi</h1>
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="text-sm/6 font-bold text-pink-500 hover:text-pink-700 active:text-pink-900"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
         <form onSubmit={generate} className="mt-8 space-y-10">
           <section>
             <SectionHeading colors={['fill-indigo-300', 'fill-blue-300']}>
