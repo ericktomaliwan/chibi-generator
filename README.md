@@ -8,7 +8,7 @@ Built with Next.js 16, React 19, and Tailwind CSS 4. Images are generated with O
 
 ## Features
 
-- **Invite-only login:** sign in with a link sent to your email. Each account has a daily image limit.
+- **Invite-only login:** sign in with your email and password, or with a link sent to your email if you forget it. Each account has a daily image limit.
 - **Photo or text:** upload a PNG, JPEG, or WebP (up to 10 MB), or describe a character instead. Photos over 4 MB are shrunk in the browser before upload.
 - **Styles:** capsule toy, sticker, boxed figure, keychain, or **Other**, where you write your own style (up to 1,000 characters).
 - **Details:** add a pose, outfit, or props (up to 300 characters).
@@ -59,7 +59,7 @@ You need Node.js 24, [pnpm](https://pnpm.io), an [OpenAI API key](https://platfo
      <a href="{{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Sign in</a>
      ```
 
-4. Under **Authentication > Users**, choose **Add user > Create new user**. Enter your email and tick **Auto Confirm User**. If it asks for a password, use a long random one. You won't need it.
+4. Under **Authentication > Users**, choose **Add user > Create new user**. Enter your email, a long random password from a password manager, and tick **Auto Confirm User**.
 5. Copy the project URL and publishable key into `.env.local`.
 
 To give someone else access, add them the same way. To remove access, delete the user, which locks them out of image generation right away.
@@ -111,7 +111,7 @@ app/
   layout.tsx             Root layout, fonts, and metadata
   login/page.tsx         Login page
   auth/confirm/route.ts  Where the emailed sign-in link lands
-  actions/auth.ts        Send a sign-in link, sign out
+  actions/auth.ts        Sign in, email a sign-in link, sign out
   api/generate/route.ts  Server route that checks the session and calls OpenAI
 components/
   ChibiStudio.tsx        The create form and results list
@@ -146,6 +146,8 @@ The browser sends the form to `/api/generate`. The server checks the session wit
 Vercel only [permits penetration testing](https://vercel.com/kb/guide/penetration-testing-on-vercel) on Pro and Enterprise plans, and only Enterprise can run high-volume scans. Supabase [permits testing your own project](https://supabase.com/docs/guides/security/security-testing), except for denial of service, request flooding, and cross-tenant attacks. Run heavy scans against a local build with OpenAI stubbed out, or they can run up your bill.
 
 The Content Security Policy in [`next.config.ts`](next.config.ts) allows inline scripts, because nonces don't work with the static pages this app prerenders. A tester may flag this.
+
+Password guessing is only slowed by [Supabase's default limit](https://supabase.com/docs/guides/auth/rate-limits) of 150 attempts per 5 minutes per IP address, and the app's sign-ins may all count against the server's address. Use long random passwords. Blocking known leaked passwords requires Supabase's Pro plan.
 
 ## Scripts
 

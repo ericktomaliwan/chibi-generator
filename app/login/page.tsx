@@ -15,8 +15,7 @@ export default function LoginPage() {
       <div className="relative w-full max-w-sm">
         <h1 className="text-2xl/7 font-bold text-slate-900">Chibi Generator</h1>
         <p className="mt-3 text-base/7 text-slate-700">
-          This app is invite-only. Enter your email and we&apos;ll send you a
-          sign-in link.
+          This app is invite-only. Sign in with your email and password.
         </p>
         <Suspense>
           <LinkError />
